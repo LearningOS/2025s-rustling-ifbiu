@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,14 +68,54 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> Self
+	where
+		T: Ord + Clone,
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
-        }
+		let mut result = LinkedList::new();
+		
+		let mut values_a = Vec::new();
+		let mut values_b = Vec::new();
+		
+		let mut current = list_a.start;
+		while let Some(ptr) = current {
+			unsafe {
+				values_a.push((*ptr.as_ptr()).val.clone());
+				current = (*ptr.as_ptr()).next;
+			}
+		}
+		
+		let mut current = list_b.start;
+		while let Some(ptr) = current {
+			unsafe {
+				values_b.push((*ptr.as_ptr()).val.clone());
+				current = (*ptr.as_ptr()).next;
+			}
+		}
+		
+		let mut i = 0;
+		let mut j = 0;
+		
+		while i < values_a.len() && j < values_b.len() {
+			if values_a[i] <= values_b[j] {
+				result.add(values_a[i].clone());
+				i += 1;
+			} else {
+				result.add(values_b[j].clone());
+				j += 1;
+			}
+		}
+		while i < values_a.len() {
+			result.add(values_a[i].clone());
+			i += 1;
+		}
+		
+		while j < values_b.len() {
+			result.add(values_b[j].clone());
+			j += 1;
+		}
+		
+		result
 	}
 }
 

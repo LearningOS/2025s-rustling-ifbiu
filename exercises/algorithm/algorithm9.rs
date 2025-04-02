@@ -2,14 +2,14 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
+use std::cmp::PartialOrd;
 
 pub struct Heap<T>
 where
-    T: Default,
+    T: Default + PartialOrd,
 {
     count: usize,
     items: Vec<T>,
@@ -18,7 +18,7 @@ where
 
 impl<T> Heap<T>
 where
-    T: Default,
+    T: Default + PartialOrd,
 {
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
@@ -37,7 +37,9 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.items.push(value);
+        self.count += 1;
+        self.sift_up(self.count);
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +59,44 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        let left = self.left_child_idx(idx);
+        let right = self.right_child_idx(idx);
+        if right > self.count {
+            left
+        } else if (self.comparator)(&self.items[left], &self.items[right]) {
+            left
+        } else {
+            right
+        }
+    }
+
+    pub fn size(&self) -> usize {
+        self.items.len()
+    }
+
+    pub fn insert(&mut self, element: T) {
+        self.items.push(element);
+        self.sift_up(self.items.len() - 1);
+    }
+
+    fn sift_up(&mut self, idx: usize) {
+        let parent = self.parent_idx(idx);
+        if idx > 1 && (self.comparator)(&self.items[idx], &self.items[parent]) {
+            self.items.swap(idx, parent);
+            self.sift_up(parent);
+        }
+    }
+
+    fn sift_down(&mut self, idx: usize) {
+        if !self.children_present(idx) {
+            return;
+        }
+
+        let child = self.smallest_child_idx(idx);
+        if (self.comparator)(&self.items[child], &self.items[idx]) {
+            self.items.swap(idx, child);
+            self.sift_down(child);
+        }
     }
 }
 
@@ -79,13 +117,26 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default + PartialOrd + Clone,
 {
     type Item = T;
 
-    fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.is_empty() {
+            return None;
+        }
+        
+        let last_item = self.items[self.count].clone();
+        let result = std::mem::replace(&mut self.items[1], last_item);
+        
+        self.count -= 1;
+        self.items.pop();
+        
+        if self.count > 0 {
+            self.sift_down(1);
+        }
+        
+        Some(result)
     }
 }
 

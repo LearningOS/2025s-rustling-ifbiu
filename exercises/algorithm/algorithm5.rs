@@ -3,7 +3,6 @@
 	This problem requires you to implement a basic BFS algorithm
 */
 
-//I AM NOT DONE
 use std::collections::VecDeque;
 
 // Define a graph
@@ -27,14 +26,77 @@ impl Graph {
 
     // Perform a breadth-first search on the graph, return the order of visited nodes
     fn bfs_with_return(&self, start: usize) -> Vec<usize> {
+        // 创建结果向量存储访问顺序
+        let mut visit_order = Vec::new();
         
-		//TODO
-
-        let mut visit_order = vec![];
+        // 如果图为空，则直接返回空结果
+        if self.adj.is_empty() {
+            return visit_order;
+        }
+        
+        // 创建队列和已访问节点集
+        let mut queue = VecDeque::new();
+        let mut visited = std::collections::HashSet::new();
+        
+        // 将起始节点加入队列和已访问集
+        queue.push_back(start);
+        visited.insert(start);
+        
+        // BFS 主循环
+        while let Some(node) = queue.pop_front() {
+            // 将当前节点添加到结果中
+            visit_order.push(node);
+            
+            // 遍历当前节点的所有邻居
+            for &neighbor in &self.adj[node] {
+                // 如果邻居尚未访问，加入队列和已访问集
+                if !visited.contains(&neighbor) {
+                    queue.push_back(neighbor);
+                    visited.insert(neighbor);
+                }
+            }
+        }
+        
         visit_order
     }
 }
 
+fn bfs(graph: &Graph, start: usize) -> Vec<usize> {
+    // 创建结果向量存储访问顺序
+    let mut result = Vec::new();
+    
+    // 如果图为空，则返回空结果
+    if graph.adj.is_empty() {
+        return result;
+    }
+    
+    // 创建队列和已访问节点集
+    let mut queue = std::collections::VecDeque::new();
+    let mut visited = std::collections::HashSet::new();
+    
+    // 将起始节点加入队列和已访问集
+    queue.push_back(start);
+    visited.insert(start);
+    
+    // BFS 主循环
+    while let Some(node) = queue.pop_front() {
+        // 将当前节点添加到结果中
+        result.push(node);
+        
+        // 遍历当前节点的所有邻居
+        if let Some(neighbors) = graph.adj.get(node) {
+            for &neighbor in neighbors {
+                // 如果邻居尚未访问，加入队列和已访问集
+                if !visited.contains(&neighbor) {
+                    queue.push_back(neighbor);
+                    visited.insert(neighbor);
+                }
+            }
+        }
+    }
+    
+    result
+}
 
 #[cfg(test)]
 mod tests {
